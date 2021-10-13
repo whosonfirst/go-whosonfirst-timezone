@@ -10,41 +10,49 @@ func TestPointInPolygon(t *testing.T) {
 
 	ctx := context.Background()
 
-	l, err := NewTimezoneLookup(ctx, "timezones://")
-
-	if err != nil {
-		t.Fatalf("Failed to create timezone lookup, %v", err)
-	}
-
 	tests := map[string][2]float64{
 		"102047421": [2]float64{-122.384048, 37.616951},
 	}
 
-	for expected_id, coords := range tests {
+	schemes := []string{
+		"timezones://",
+		"timezones://github",
+	}
 
-		c, err := geo.NewCoordinate(coords[0], coords[1])
+	for _, uri := range schemes {
+
+		l, err := NewTimezoneLookup(ctx, uri)
 
 		if err != nil {
-			t.Fatalf("Failed to create coordinate for %v, %v", coords, err)
+			t.Fatalf("Failed to create timezone lookup for %s, %v", uri, err)
 		}
 
-		rsp, err := l.PointInPolygon(ctx, c)
+		for expected_id, coords := range tests {
 
-		if err != nil {
-			t.Fatalf("Failed to perform point in polygon, %v", err)
-		}
+			c, err := geo.NewCoordinate(coords[0], coords[1])
 
-		results := rsp.Results()
-		count := len(results)
+			if err != nil {
+				t.Fatalf("Failed to create coordinate for %v, %v", coords, err)
+			}
 
-		if count != 1 {
-			t.Fatalf("Expected a single result, got %d", count)
-		}
+			rsp, err := l.PointInPolygon(ctx, c)
 
-		first := results[0]
+			if err != nil {
+				t.Fatalf("Failed to perform point in polygon, %v", err)
+			}
 
-		if first.Id() != expected_id {
-			t.Fatalf("Expected ID %s but got %s", expected_id, first.Id())
+			results := rsp.Results()
+			count := len(results)
+
+			if count != 1 {
+				t.Fatalf("Expected a single result, got %d", count)
+			}
+
+			first := results[0]
+
+			if first.Id() != expected_id {
+				t.Fatalf("Expected ID %s but got %s", expected_id, first.Id())
+			}
 		}
 	}
 }
