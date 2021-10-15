@@ -67,7 +67,8 @@ func main() {
 		}
 
 		// START OF something something something intersects
-
+		// https://pkg.go.dev/github.com/go-spatial/geom@v0.0.0-20210804045141-e17f18e24cae/planar/intersect
+		
 		pt, _, err := properties.Centroid(body)
 
 		if err != nil {
